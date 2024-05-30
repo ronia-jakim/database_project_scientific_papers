@@ -2,11 +2,12 @@ import json
 import psycopg2 as psql
 
 import handle_connection as conn
-import articles as art
+import modifying_database as art
 
 def main():
     cursor = None
     connection = None
+
     while True:
         cmd = str(input())
         parsed = json.loads(cmd)
@@ -21,20 +22,30 @@ def main():
                 print('{ "status" : "ERROR: no database open" }')
             else:
                 arguments = parsed['article']
-                # print(arguments['login'])
-                # print(arguments['password'])
-                # print(arguments['date'])
-                # print(arguments['conference'])
-                # print(arguments['author list'])
+
+                # wywolanie funkcji zajmujacej sie dodaniem nowego papera
+                # (i uzytkownika/institution, jesli nie istnieja)
                 art.add_article(arguments['login'],    
                                 arguments['password'], 
                                 arguments['date'],    
                                 arguments['title'],   
                                 arguments['conference'], 
                                 arguments['author list'],
-                                        cursor)
+                                cursor)
+
+                #zapisuje zmiany
                 connection.commit()
-            print("nieotwartowywanie")
+        elif 'points' in parsed:
+            if cursor is None or connection is None: 
+                print('{ "status": "Error: no database open" }')
+            else: 
+                arguments = parsed['points']
+                art.change_points(arguments['login'],
+                                  arguments['password'],
+                                  arguments['date'], 
+                                  arguments['points_list'], 
+                                  cursor
+                                  )
         else:
             if not (cursor is None): 
                 cursor.close()

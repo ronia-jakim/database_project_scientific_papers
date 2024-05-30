@@ -21,9 +21,16 @@ def open_connection(hst, db, login, psw):
         cursor.execute("""
                 CREATE TABLE IF NOT EXISTS conference (
                         id              varchar(40),
-                        name            varchar(40) NOT NULL,
-                        current_points  integer,
+                        name            varchar(40),
+                        current_points  integer NOT NULL,
                         PRIMARY KEY(id)
+                    );
+                       """)
+        cursor.execute("""
+                CREATE TABLE IF NOT EXISTS conference_points (
+                        conf_id         varchar(40) NOT NULL,
+                        date_of_change  varchar(40) NOT NULL,
+                        current_points  integer,
                     );
                        """)
         cursor.execute("""

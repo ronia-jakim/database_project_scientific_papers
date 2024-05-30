@@ -1,3 +1,3 @@
 { "open": { "host": "localhost", "baza": "maruda", "login": "maruda", "password": "" } }
-{ "article": { "login": "weles", "password": "welesik", "date": "20.05.2024", "title": "weles jest czarny", "conference": "tak", "author list": [ {"author": "weles", "institution": "welesikowo"}, {"author": "kycia", "institution": "grozna"} ] } }
+{ "article": { "login": "weles", "password": "welesik", "date": "20.05.2024", "title": "weles jest czarny", "conference": "tak", "author list": [ {"author": "weles", "institution": "welesikowo13"}, {"author": "kycia", "institution": "grozna"} ] } }
 { "function4": { } }
