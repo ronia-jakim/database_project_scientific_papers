@@ -1,0 +1,127 @@
+\documentclass{article}
+
+\usepackage[
+  a4paper, 
+  %showframe,
+  total={180mm, 240mm}
+  ]{geometry}
+
+\usepackage{avant}
+\renewcommand*\familydefault{\sfdefault}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{tikz}
+\usetikzlibrary{calc,arrows.meta,bending,positioning,intersections,through}
+
+\usepackage{xcolor}
+
+\definecolor{bg0}{HTML}{FFFBEF}
+\definecolor{bg1}{HTML}{F8F5E4}
+\definecolor{bg2}{HTML}{F2EFDF}
+
+\definecolor{red}{HTML}{F85552}
+\definecolor{orange}{HTML}{F57D26}
+\definecolor{green}{HTML}{8DA101}
+\definecolor{yellow}{HTML}{DFA000}
+\definecolor{blue}{HTML}{3A94C5}
+\definecolor{aqua}{HTML}{35A77C}
+\definecolor{purple}{HTML}{DF69BA}
+
+\definecolor{green_light}{HTML}{93B259}
+\definecolor{red_light}{HTML}{E66868}
+
+\definecolor{fg}{HTML}{5C6A72}
+
+\color{fg}
+\pagecolor{bg0}
+
+\newcommand{\drawline}[2]{
+  \fill[aqua!80] ($#1+(2.2, 0)$) circle (2pt);
+  \fill[aqua!80] ($#2-(2.2, 0)$) circle (2pt);
+}
+
+\title{Bazy danych projekt}
+\author{Weronika Jakimowicz}
+\date{13.06.2024}
+
+\begin{document}
+\maketitle 
+
+\begin{center}\begin{tikzpicture}[ 
+  titlenode/.style={
+    rectangle,
+    very thick,
+    draw=green!80!fg, 
+    fill=yellow!25, 
+    rounded corners, 
+    minimum width=5cm, 
+    minimum height=10mm, 
+    font=\color{green!80!fg}\bfseries\large
+  }, 
+  bodynode/.style={
+    rectangle, 
+    draw=green!50,
+    fill=yellow!10,
+    thick,
+    minimum width=4.4cm, 
+    minimum height=8mm
+  }
+  ]
+
+  \node[anchor=north west, bodynode] (smart-id) at (0.3, -1) {id};
+  \node[anchor=north west, bodynode] (smart-aff-id) at (0.3, -1-.8*1) {institution id};
+  \node[anchor=north west, bodynode] (smart-name) at (0.3, -1-.8*2) {name};
+  \node[anchor=north west, bodynode] (smart-surname) at (0.3, -1-.8*3) {surname};
+
+  \node[anchor=north west, titlenode] (smart-title) at (0,0) {SMART GUYS};
+  
+
+  \node[anchor=north west, bodynode] (inst-id) at (8.3, -1) {id};
+
+  \node[anchor=north west, titlenode] (inst-title) at (8,0) {INSTITUTIONS};
+  
+  \node[anchor=north west, bodynode] (paper-auth-id) at (8.3, -4) {author id};
+  \node[anchor=north west, bodynode] (paper-inst-id) at (8.3, -4-.8) {institution id};
+  \node[anchor=north west, bodynode] (paper-conf-id) at (8.3, -4-2*.8) {conference id};
+  \node[anchor=north west, bodynode] (paper-date) at (8.3, -4-3*.8) {publication date};
+  \node[anchor=north west, bodynode] (paper-tit) at (8.3, -4-4*.8) {title};
+    
+  \node[anchor=north west, titlenode] (paper-title) at (8,-3) {PAPER};
+  
+  \node[anchor=north west, bodynode] (conf-id) at (.3, -6.5) {id};
+  \node[anchor=north west, bodynode] (conf-name) at (.3, -6.5-.8) {name};
+  \node[anchor=north west, bodynode] (conf-pkt) at (.3, -6.5-2*.8) {current points};
+  
+  \node[anchor=north west, titlenode] (conf-title) at (0,-5.5) {CONFERENCE};
+  
+  \node[anchor=north west, bodynode] (conf-pkt-id) at (8.3, -9.5-1) {conference id};
+  \node[anchor=north west, bodynode] (conf-pkt-pkt) at (8.3, -10.5-.8) {points};
+  \node[anchor=north west, bodynode] (conf-pkt-date) at (8.3, -10.5-2*.8) {date of change};
+
+  \node[anchor=north west, titlenode] (conf-pkt-title) at (8,-9.5) {CONFERENCE POINTS};
+
+  \drawline{(smart-aff-id)}{(inst-id)}
+  \drawline{(conf-id)}{(conf-pkt-id)}
+  \drawline{(smart-id)}{(paper-auth-id)}
+  \fill[aqua!80] ($(conf-id)+(2.2, -.2)$) circle (2pt);
+  \fill[aqua!80] ($(paper-conf-id)+(-2.2, 0)$) circle (2pt);
+  
+  \fill[aqua!80] ($(inst-id)+(2.2, 0)$) circle (2pt);
+  \fill[aqua!80] ($(paper-inst-id)+(2.2, 0)$) circle (2pt);
+
+  \draw[thick, aqua!60!fg, -{Latex[length=3mm]}, name path=PAPER-SMART] (smart-aff-id) to[out=0, in=180] (inst-id);
+  \draw[thick, aqua!60!fg, -{Latex[length=3mm]}] (paper-inst-id) to[out=0, in=0] (inst-id);
+  
+  \draw[thick, bg0, -{Latex[length=3mm]}, name path=SMART-INST] (paper-auth-id) to[out=180, in=0] (smart-id);
+  \path [name intersections={of=PAPER-SMART and SMART-INST,by=E}];
+  \node (inters) at (E) {};
+  \fill[bg0] (inters) circle (6pt);
+  \draw[thick, aqua!60!fg, -{Latex[length=3mm]}, name path=SMART-INST] (paper-auth-id) to[out=180, in=0] (smart-id);
+  \draw[thick, aqua!60!fg, -{Latex[length=3mm]}] (paper-conf-id) to[out=180, in=0] (conf-id);
+  \draw[thick, aqua!60!fg, -{Latex[length=3mm]}] (conf-pkt-id) to[out=180, in=0] ($(conf-id)+(2.2, -0.2)$);
+
+\end{tikzpicture}\end{center}
+
+\end{document}
