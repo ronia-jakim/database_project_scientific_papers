@@ -1,7 +1,9 @@
 import psycopg2 as psql
 import json
 
-def add_article(login, password, date, title, conference, author_list, cursor):
+def add_article(date, title, conference, author_list, cursor):
+    auth_nr = len(author_list)
+
     for el in author_list:
         auth = el['author']
         inst = el['institution']
@@ -36,16 +38,17 @@ def add_article(login, password, date, title, conference, author_list, cursor):
                            """, (inst, auth))
 
         cursor.execute("""
-                       INSERT INTO paper (auth_id, inst_id, conference_id, public_date, title)
+                       INSERT INTO 
+                       paper (auth_id, inst_id, conference_id, public_date, title)
                        VALUES (%s, %s, %s, %s, %s)
                        """,
                        (auth, inst, conference, date, title))
 
-def change_points(login, passwd, date, points_list, cursor):
+def change_points(date, points_list, cursor):
     for el in points_list: 
         conf = el['conference'], 
         points = el['points']
-
+        
         # sprawdzam, czy taka konferencja juz istnieje
         cursor.execute("""
                         SELECT * FROM conference

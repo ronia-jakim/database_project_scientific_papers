@@ -3,6 +3,7 @@ import psycopg2 as psql
 
 import handle_connection as conn
 import modifying_database as art
+import author_listing as auth_lst
 
 def main():
     cursor = None
@@ -12,21 +13,22 @@ def main():
         cmd = str(input())
         parsed = json.loads(cmd)
 
+
         if 'open' in parsed: 
             arguments = parsed['open']
             (cursor, connection) = conn.open_connection(arguments['host'], arguments['baza'], arguments['login'], arguments['password'])
             if cursor is None: 
-                return
+                print('{ "status" : "ERROR" }')
+
         elif 'article' in parsed: 
             if cursor is None or connection is None: 
-                print('{ "status" : "ERROR: no database open" }')
+                print('{ "status" : "ERROR" }')
             else:
                 arguments = parsed['article']
 
                 # wywolanie funkcji zajmujacej sie dodaniem nowego papera
                 # (i uzytkownika/institution, jesli nie istnieja)
-                art.add_article(arguments['login'],    
-                                arguments['password'], 
+                art.add_article( 
                                 arguments['date'],    
                                 arguments['title'],   
                                 arguments['conference'], 
@@ -40,8 +42,7 @@ def main():
                 print('{ "status": "Error: no database open" }')
             else: 
                 arguments = parsed['points']
-                art.change_points(arguments['login'],
-                                  arguments['password'],
+                art.change_points(
                                   arguments['date'], 
                                   arguments['points_list'], 
                                   cursor
