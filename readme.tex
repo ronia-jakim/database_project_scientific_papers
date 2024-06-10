@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 
 \usepackage[
   a4paper, 
@@ -46,8 +46,78 @@
 \author{Weronika Jakimowicz}
 \date{13.06.2024}
 
+\usepackage{listings}
+
+\lstset{ 
+  frame=L,
+  backgroundcolor=\color{bg1},
+  basicstyle=\large\ttfamily, 
+  breaklines=true, 
+  morekeywords={article, points, institution, author, open, newuser, deluser},
+  keywordstyle=\color{orange}
+}
+
+\def\inline{\lstinline[basicstyle=\ttfamily\large\color{orange!50!fg}]}
+
+\makeatletter
+\renewcommand*{\verbatim@font}{\ttfamily\large\color{orange!50!fg}}
+\makeatother
+
 \begin{document}
 \maketitle 
+
+\section{Dokumentacja}
+
+\begin{lstlisting}
+open <host> <baza> <login> <password>
+\end{lstlisting}
+
+Otwiera połączenie z \inline{<baza>} jako użytkownik \inline{<login>} o haśle \inline{<password>}. Jeśli połączenie powiodło się, zwraca \inline{"status": "OK"}, wpp. dostaniemy \inline{"status": "ERROR"}
+
+\begin{lstlisting}
+newuser <secret> <newlogin> <newpassword>
+
+deluser <secret> <login>
+\end{lstlisting}
+
+Dwie operacje do odpowiedni dodawania i usuwania użytkowników aplikacji.
+
+\begin{lstlisting}
+article <login> <password> <date> <title> <conference> <author_list> 
+\end{lstlisting}
+
+Pozwala dodawać nowe papery do bazy danych. Zakładamy, że wartość \inline{<conference>} jest identyfikatorem istniejącej już w bazie \inline{conferences} konferencji. Jeśli próbujemy dodać paper z nieistniejącej konferencji, program zwróci \inline{"status": "ERROR"}.
+
+W przypadku dodawania istniejącej konferencji, instytucja jak i autor zostaną dodani jeśli jeszcze nie istnieli, a w przypadku zmiany afiliacji autora, zostanie to odnotowane w odpowiedniej tabeli.
+
+\begin{lstlisting}
+points <login> <password> <date> <points_list>
+\end{lstlisting}
+
+Dla każdej konferencji \inline{<conference_id>} podanej na liście \inline{<points_list>=[<conference_id>, <points>]} ustawia punkty na \inline{<points>} dla wszystkich prac napisanych po dacie \inline{<date>}.
+
+\begin{lstlisting}
+institution <start_date> <end_date>
+
+author <start_date> <end_date>
+\end{lstlisting}
+
+Zwraca listę instytucji/autorów wraz ze zdobytą przez nich ilością punktów między \inline{<start_date>} a \inline{<end_date>}. Jeśli instytucja/autor nie zdobyła w tym okresie żadnych punktów, to nie zostaje wypisana.
+
+\newpage
+
+\section{Model konceptualny}
+
+\textbf{Legenda:}
+\begin{itemize}
+  \item strzałki oznaczają \emph{foreign key}
+  \item pogrubiony czerwony tekst i ciemniejsze tło to \emph{primary key}
+  \item elementy z własnością \inline{NOT NULL} są oznaczone $\neq\emptyset$.
+\end{itemize}
+Dodatkowo, wartość pola \inline{secret} w tabeli \inline{user logins} zawsze musi wynosić 
+
+\inline{'d8512346fbc5bb7a325ca4'}
+
 
 \begin{center}\begin{tikzpicture}[ 
   titlenode/.style={
@@ -101,8 +171,8 @@
     \node[anchor=north west, bodynode] (paper-auth-id) at (8.3, -4) {author id};
     \node[anchor=north west, bodynode] (paper-inst-id) at (8.3, -4-.8) {institution id};
     \node[anchor=north west, bodynode] (paper-conf-id) at (8.3, -4-2*.8) {conference id};
-    \node[anchor=north west, bodynode] (paper-date) at (8.3, -4-3*.8) {publication date};
-    \node[anchor=north west, bodynode] (paper-tit) at (8.3, -4-4*.8) {title};
+    \node[anchor=north west, bodynode] (paper-date) at (8.3, -4-3*.8) {publication date $\neq\emptyset$};
+    \node[anchor=north west, bodynode] (paper-tit) at (8.3, -4-4*.8) {title $\neq\emptyset$};
       
     \node[anchor=north west, titlenode] (paper-title) at (8,-3) {PAPER};
   \end{scope}
@@ -119,8 +189,8 @@
   % conference points
   \begin{scope}
     \node[anchor=north west, bodynode] (conf-pkt-id) at (8.3, -9.5-1) {conference id};
-    \node[anchor=north west, bodynode] (conf-pkt-pkt) at (8.3, -10.5-.8) {points};
-    \node[anchor=north west, bodynode] (conf-pkt-date) at (8.3, -10.5-2*.8) {date of change};
+    \node[anchor=north west, bodynode] (conf-pkt-pkt) at (8.3, -10.5-.8) {points $\neq\emptyset$};
+    \node[anchor=north west, bodynode] (conf-pkt-date) at (8.3, -10.5-2*.8) {date of change $\neq\emptyset$};
   
     \node[anchor=north west, titlenode] (conf-pkt-title) at (8,-9.5) {CONFERENCE POINTS};
 
@@ -130,7 +200,7 @@
   \begin{scope}[shift={(0,1)}]
     \node[anchor=north west, bodynode] (guy-id) at (.3, -6.5) {guy id};
     \node[anchor=north west, bodynode] (aff-inst-id) at (.3, -6.5-.8) {institution id};
-    \node[anchor=north west, bodynode] (aff-date) at (.3, -6.5-2*.8) {date from};
+    \node[anchor=north west, bodynode] (aff-date) at (.3, -6.5-2*.8) {date from $\neq\emptyset$};
       
     \node[anchor=north west, titlenode] (aff-title) at (0,-5.5) {GUY AFFILIATIONS};
   \end{scope}
@@ -162,8 +232,8 @@
 
   
   \begin{scope}[shift={(4,-8.5)}]
-    \node[anchor=north west, bodynode] (aff-inst-id) at (.3, -6.5-.8) {password};
-    \node[anchor=north west, bodynode] (aff-date) at (.3, -6.5-2*.8) {secret};
+    \node[anchor=north west, bodynode] (aff-inst-id) at (.3, -6.5-.8) {password $\neq\emptyset$};
+    \node[anchor=north west, bodynode] (aff-date) at (.3, -6.5-2*.8) {secret $\neq\emptyset$};
     
     \node[anchor=north west, primkey] (guy-id) at (.3, -6.5) {login};
       
@@ -171,5 +241,7 @@
   \end{scope}
 
 \end{tikzpicture}\end{center}
+
+% W powyższym diagramie strzałki oznaczają foreign keys, natomiast primary key jest oznaczony czerwonym tesktem, pogrubioną ramką i ciemniejszym tłem. Pola, które nie mogą być puste mają dopisane $\neq\emptyset$.
 
 \end{document}

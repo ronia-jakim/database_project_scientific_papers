@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS paper (
   institution_id    varchar(40) REFERENCES institutions(id), 
   conference_id     varchar(40) REFERENCES conference(id), 
   publication_date  date NOT NULL, 
-  title             varchar(80)
+  title             varchar(80) NOT NULL
 );
 
 -- tabelka dla użytkowników aplikacji, od razu sprawdza sekrecik
@@ -287,3 +287,5 @@ SELECT * FROM conference_points;
 SELECT * FROM list_author_points(DATE '2019-03-03', DATE '2023-01-01');
 
 SELECT * FROM list_inst_points(DATE '2021-12-12', DATE '2025-01-01');
+
+SELECT * FROM list_author_details('weles');
