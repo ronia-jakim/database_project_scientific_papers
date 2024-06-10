@@ -1,8 +1,8 @@
---CREATE USER weles WITH ENCRYPTED PASSWORD 'welesik';
+CREATE USER weles WITH ENCRYPTED PASSWORD 'welesik';
 
 -- właśnicicel bazy dancyh w projekcie to weles :3
---CREATE DATABASE database_project_scientists
---  WITH OWNER = 'weles';
+CREATE DATABASE database_project_scientists
+  WITH OWNER = 'weles';
 
 \CONNECT database_project_scientists 
 
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS paper (
 );
 
 -- tabelka dla użytkowników aplikacji, od razu sprawdza sekrecik
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS user_logins (
   secret  varchar(40) NOT NULL, 
   login   varchar(40) PRIMARY KEY,
   passwd  varchar(40) NOT NULL,
@@ -274,6 +274,9 @@ INSERT INTO paper VALUES (
   'Welesik'
 );
 
+INSERT INTO user_logins VALUES ('d8512346fbc5bb7a325ca4','weles', 'welesik');
+
+    
 SELECT * FROM paper;
 SELECT * FROM smart_guys;
 SELECT * FROM guy_aff;
@@ -283,4 +286,4 @@ SELECT * FROM conference_points;
 
 SELECT * FROM list_author_points(DATE '2019-03-03', DATE '2023-01-01');
 
-SELECT * FROM list_inst_points(DATE '2021-12-12', DATE '2023-01-01');
+SELECT * FROM list_inst_points(DATE '2021-12-12', DATE '2025-01-01');

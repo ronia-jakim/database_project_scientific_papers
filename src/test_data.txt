@@ -1,3 +1,4 @@
-{ "open": { "host": "localhost", "baza": "maruda", "login": "maruda", "password": "" } }
-{ "article": { "login": "weles", "password": "welesik", "date": "20.05.2024", "title": "weles jest czarny", "conference": "tak", "author list": [ {"author": "weles", "institution": "welesikowo13"}, {"author": "kycia", "institution": "grozna"} ] } }
-{ "function4": { } }
+{ "open": { "host": "localhost", "baza": "marudka", "login": "marudka", "password": "" } }
+{ "article": { "login": "weles", "password": "welesik", "date": "2024-05-12", "title": "weles jest czarny", "conference": "madra konferencja", "author list": [ {"author": "weles", "institution": "welesikowo13"}, {"author": "kycia", "institution": "grozna"} ] } }
+{ "author": { "start_date": "2019-01-01", "end_date": "2024-01-01" } }
+{ "institution": { "start_date": "2019-01-01", "end_date": "2024-01-01" } }
