@@ -1,1 +1,1 @@
-DROP owned BY maruda
+DROP owned BY marudka

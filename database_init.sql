@@ -4,6 +4,8 @@
 --CREATE DATABASE database_project_scientists
 --  WITH OWNER = 'weles';
 
+\CONNECT database_project_scientists 
+
 -- tabelka z instytucjami, nazwa może być pusta, bo Pan nic o takowej nie pisze
 CREATE TABLE IF NOT EXISTS institutions (
   id    varchar(40) PRIMARY KEY, 
@@ -75,13 +77,17 @@ BEGIN
   ON CONFLICT DO NOTHING;
 
   -- sprawdzam, jaką instytucję ma teraz ziomek podpientą
-  SELECT inst_id FROM guy_aff INTO curr_inst
+  SELECT inst_id FROM guy_aff ga1 INTO curr_inst
   WHERE 
     guy_id = NEW.auth_id
-    AND date_from < NEW.publication_date 
-    AND guy_id NOT IN (
-      SELECT guy_id FROM guy_aff 
-      WHERE date_from >= NEW.publication_date
+    AND date_from IN (
+      SELECT date_from 
+      FROM guy_aff ga2
+      WHERE 
+        ga2.date_from < NEW.publication_date 
+        AND ga2.guy_id = NEW.auth_id 
+      ORDER BY 1 DESC 
+      LIMIT 1
     )
   LIMIT 1;
 
@@ -108,7 +114,9 @@ BEGIN
   SELECT paper.auth_id, SUM(points) 
   FROM paper JOIN conference_points ON paper.conference_id = conference_points.conference_id
   WHERE 
-    paper.publication_date > conference_points.date_of_change 
+    paper.publication_date > start_date 
+    AND paper.publication_date < end_date
+    AND paper.publication_date > conference_points.date_of_change 
     -- ta zmiana jest najmłodsza spośród zmian przed publikacją papera
     AND conference_points.date_of_change IN ( 
       SELECT c1.date_of_change FROM 
@@ -143,7 +151,9 @@ BEGIN
     SELECT paper.title, cp.points
     FROM paper JOIN conference_points cp ON paper.conference_id = cp.conference_id
     WHERE 
-      paper.publication_date > cp.date_of_change 
+      paper.publication_date > start_date 
+      AND paper.publication_date < end_date
+      AND paper.publication_date > cp.date_of_change 
       -- ta zmiana jest najmłodsza spośród zmian przed publikacją papera
       AND cp.date_of_change IN ( 
         SELECT c1.date_of_change FROM 
@@ -244,7 +254,7 @@ INSERT INTO paper VALUES (
   'weles',
   'kotomania', 
   'madra konferencja', 
-  DATE '2022-10-02', 
+  DATE '2021-10-02', 
   'Welesik'
 );
 
@@ -252,7 +262,7 @@ INSERT INTO paper VALUES (
   'welesik',
   'kotomania', 
   'madra konferencja', 
-  DATE '2022-10-02', 
+  DATE '2021-10-02', 
   'Welesik'
 );
 
@@ -260,7 +270,7 @@ INSERT INTO paper VALUES (
   'kycia',
   'grubaskowo', 
   'madra konferencja', 
-  DATE '2022-10-02', 
+  DATE '2021-10-02', 
   'Welesik'
 );
 
@@ -273,4 +283,4 @@ SELECT * FROM conference_points;
 
 SELECT * FROM list_author_points(DATE '2019-03-03', DATE '2023-01-01');
 
-SELECT * FROM list_inst_points(DATE '2019-03-03', DATE '2023-01-01');
+SELECT * FROM list_inst_points(DATE '2021-12-12', DATE '2023-01-01');
