@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024/Arch Linux) (preloaded format=pdflatex 2024.6.5)  10 JUN 2024 17:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024/Arch Linux) (preloaded format=pdflatex 2024.6.2)  12 JUN 2024 15:52
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -407,12 +407,14 @@ LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 71
  (/usr/share/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-Overfull \hbox (13.01816pt too wide) in paragraph at lines 89--90
-[]\T1/pag/m/n/12 Pozwala do-dawa¢ nowe pa-pery do bazy danych. Za-kªadamy, »e warto±¢ [][][][]
- []
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 87.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 87.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 87.
 
-
-Overfull \hbox (58.83328pt too wide) in paragraph at lines 97--98
+Overfull \hbox (58.83328pt too wide) in paragraph at lines 95--96
 []\T1/pag/m/n/12 Dla ka»dej kon-fer-encji [][][][][][][][][][] po-danej na li±-cie [][][][][][][][]
  []
 
@@ -420,21 +422,15 @@ Overfull \hbox (58.83328pt too wide) in paragraph at lines 97--98
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
 LaTeX Font Info:    Font shape `T1/pag/b/n' in size <12> not available
-(Font)              Font shape `T1/pag/db/n' tried instead on input line 111.
-LaTeX Font Info:    Trying to load font information for TS1+pag on input line 113.
+(Font)              Font shape `T1/pag/db/n' tried instead on input line 109.
+LaTeX Font Info:    Trying to load font information for TS1+pag on input line 111.
  (/usr/share/texmf-dist/tex/latex/psnfss/ts1pag.fd
 File: ts1pag.fd 2001/06/04 font definitions for TS1/pag.
 )
 LaTeX Font Info:    Font shape `T1/pag/m/it' in size <12> not available
-(Font)              Font shape `T1/pag/m/sl' tried instead on input line 113.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 115.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 115.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 115.
+(Font)              Font shape `T1/pag/m/sl' tried instead on input line 111.
 LaTeX Font Info:    Font shape `T1/pag/b/n' in size <14.4> not available
-(Font)              Font shape `T1/pag/db/n' tried instead on input line 157.
+(Font)              Font shape `T1/pag/db/n' tried instead on input line 155.
  [2] (./readme.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
@@ -442,15 +438,15 @@ L3 programming layer <2024-02-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 15882 strings out of 474116
- 317772 string characters out of 5750250
- 2018187 words of memory out of 5000000
- 37979 multiletter control sequences out of 15000+600000
+ 15875 strings out of 474116
+ 317641 string characters out of 5750250
+ 2009187 words of memory out of 5000000
+ 37972 multiletter control sequences out of 15000+600000
  585690 words of font info for 66 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  102i,6n,421p,462b,1125s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sftt1440.pfb></usr/share/texmf-dist/fonts/type1/urw/avantgar/uagd8a.pfb></usr/share/texmf-dist/fonts/type1/urw/avantgar/uagk8a.pfb></usr/share/texmf-dist/fonts/type1/urw/avantgar/uagko8a.pfb>
-Output written on readme.pdf (2 pages, 80030 bytes).
+Output written on readme.pdf (2 pages, 80062 bytes).
 PDF statistics:
  46 PDF objects out of 1000 (max. 8388607)
  29 compressed objects within 1 object stream

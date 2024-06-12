@@ -1,5 +1,6 @@
 import psycopg2 as psql
 import json
+import math
 
 def list_institutions(parsed, cursor, connection):
     arguments = parsed['institution']
@@ -14,15 +15,19 @@ def list_institutions(parsed, cursor, connection):
 
         inst_dic = {}
 
+        # new_points = 0
         for ret in inst_listed:
             new_points = 0
-            conf_points = float(ret[1]) 
-            if conf_points >= 100:
-                new_points = conf_points
-            elif conf_points == 70: 
-                new_points = conf_points * math.sqrt(float(ret[4]) / float(ret[3]) )
-            else: 
-                new_points = conf_points * float(ret[4]) / float(ret[3])
+            try:
+                conf_points = float(ret[1]) 
+                if conf_points >= 100:
+                    new_points = conf_points
+                elif conf_points == 70: 
+                    new_points = conf_points * math.sqrt(float(ret[4]) / float(ret[3]) )
+                else: 
+                    new_points = conf_points * float(ret[4]) / float(ret[3])
+            except:
+                new_points = 0
 
             if ret[2] in inst_dic:
                 inst_dic[ret[2]] += new_points
@@ -45,19 +50,22 @@ def list_authors(parsed, cursor, connection):
     start_date = arguments['start_date']
     end_date = arguments['end_date']
 
-    try: 
+    try:
         cursor.execute("""
                 SELECT * FROM list_author_points(DATE %s, DATE %s)
             """, (start_date, end_date))
-        authors_listed = cursor.fetchall()
+        try:
+            authors_listed = cursor.fetchall()
 
-       
-        print('{ "status": "OK", "data": [ ')
-        for ret in authors_listed:
-                print('{ ')
-                print(f''' "author": "{ret[0]}", "number of points": "{ret[1]}" ''')
-                print('}, ')
-        print(' ] }')
+           
+            print('{ "status": "OK", "data": [ ')
+            for ret in authors_listed:
+                    print('{ ')
+                    print(f''' "author": "{ret[0]}", "number of points": "{ret[1]}" ''')
+                    print('}, ')
+            print(' ] }')
+        except:
+            print('{ "status": "OK", "data": [] }')
 
 
     except:

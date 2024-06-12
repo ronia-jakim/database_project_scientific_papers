@@ -76,19 +76,17 @@ Otwiera połączenie z \inline{<baza>} jako użytkownik \inline{<login>} o haśl
 
 \begin{lstlisting}
 newuser <secret> <newlogin> <newpassword>
-
-deluser <secret> <login>
 \end{lstlisting}
 
-Dwie operacje do odpowiedni dodawania i usuwania użytkowników aplikacji.
+Dodaje nowego użytkownika aplikacji
 
 \begin{lstlisting}
 article <login> <password> <date> <title> <conference> <author_list> 
 \end{lstlisting}
 
-Pozwala dodawać nowe papery do bazy danych. Zakładamy, że wartość \inline{<conference>} jest identyfikatorem istniejącej już w bazie \inline{conferences} konferencji. Jeśli próbujemy dodać paper z nieistniejącej konferencji, program zwróci \inline{"status": "ERROR"}.
+Pozwala dodawać nowe papery do bazy danych. Jeśli wartość \inline{<conference>} nie jest identyfikatorem istniejącej już w bazie \inline{conferences} konferencji, to dodajemy ją i ustawiamy punkty od daty publikacji paperu na $0$. %Jeśli próbujemy dodać paper z nieistniejącej konferencji, program zwróci \inline{"status": "ERROR"}.
 
-W przypadku dodawania istniejącej konferencji, instytucja jak i autor zostaną dodani jeśli jeszcze nie istnieli, a w przypadku zmiany afiliacji autora, zostanie to odnotowane w odpowiedniej tabeli.
+W przypadku dodawania paperów, instytucja jak i autor zostaną dodani jeśli jeszcze nie istnieli, a w przypadku zmiany afiliacji autora, zostanie to odnotowane w odpowiedniej tabeli.
 
 \begin{lstlisting}
 points <login> <password> <date> <points_list>
@@ -180,7 +178,7 @@ Dodatkowo, wartość pola \inline{secret} w tabeli \inline{user logins} zawsze m
   % conference
   \begin{scope}[shift={(0, -3.5)}]
     \node[anchor=north west, bodynode] (conf-name) at (.3, -6.5-.8) {name};
-    \node[anchor=north west, bodynode] (conf-pkt) at (.3, -6.5-2*.8) {current points};
+    % \node[anchor=north west, bodynode] (conf-pkt) at (.3, -6.5-2*.8) {current points};
     \node[anchor=north west, primkey] (conf-id) at (.3, -6.5) {id};
   
     \node[anchor=north west, titlenode] (conf-title) at (0,-5.5) {CONFERENCE};

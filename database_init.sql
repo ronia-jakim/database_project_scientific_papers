@@ -4,7 +4,7 @@ CREATE USER weles WITH ENCRYPTED PASSWORD 'welesik';
 CREATE DATABASE database_project_scientists
   WITH OWNER = 'weles';
 
-\CONNECT database_project_scientists 
+\connect database_project_scientists weles
 
 -- tabelka z instytucjami, nazwa może być pusta, bo Pan nic o takowej nie pisze
 CREATE TABLE IF NOT EXISTS institutions (
@@ -30,8 +30,7 @@ CREATE TABLE IF NOT EXISTS guy_aff (
 -- tabelka dla konferencji, nazwa i current_poitns mogą być puste
 CREATE TABLE IF NOT EXISTS conference (
   id              varchar(40) PRIMARY KEY, 
-  name            varchar(40), 
-  current_points  integer 
+  name            varchar(40)
 );
 
 -- tutaj z kolei punkty nie mogą być puste, tak samo data rozpoczęcia
@@ -47,11 +46,11 @@ CREATE TABLE IF NOT EXISTS paper (
   institution_id    varchar(40) REFERENCES institutions(id), 
   conference_id     varchar(40) REFERENCES conference(id), 
   publication_date  date NOT NULL, 
-  title             varchar(80) NOT NULL
+  title             varchar(80)
 );
 
 -- tabelka dla użytkowników aplikacji, od razu sprawdza sekrecik
-CREATE TABLE IF NOT EXISTS user_logins (
+CREATE TABLE IF NOT EXISTS users (
   secret  varchar(40) NOT NULL, 
   login   varchar(40) PRIMARY KEY,
   passwd  varchar(40) NOT NULL,
@@ -63,10 +62,12 @@ CREATE TABLE IF NOT EXISTS user_logins (
 --             TUTAJ BĘDĄ FUNKCJE KTORE WYZWOLE POTEM              --
 -- =============================================================== -- 
 
+-- funkcja poprawiajaca dodawanie paperow
 CREATE OR REPLACE FUNCTION on_paper_insert() RETURNS TRIGGER
 AS $X$
 DECLARE 
   curr_inst varchar(40);
+  is_conf varchar(40);
 BEGIN
   -- jeśli ziomek jeszcze nie istniał, to go wstawiam
   INSERT INTO smart_guys VALUES (NEW.auth_id, NULL, NULL)
@@ -77,17 +78,13 @@ BEGIN
   ON CONFLICT DO NOTHING;
 
   -- sprawdzam, jaką instytucję ma teraz ziomek podpientą
-  SELECT inst_id FROM guy_aff ga1 INTO curr_inst
+  SELECT inst_id FROM guy_aff INTO curr_inst
   WHERE 
     guy_id = NEW.auth_id
-    AND date_from IN (
-      SELECT date_from 
-      FROM guy_aff ga2
-      WHERE 
-        ga2.date_from < NEW.publication_date 
-        AND ga2.guy_id = NEW.auth_id 
-      ORDER BY 1 DESC 
-      LIMIT 1
+    AND date_from < NEW.publication_date 
+    AND guy_id NOT IN (
+      SELECT guy_id FROM guy_aff 
+      WHERE date_from >= NEW.publication_date
     )
   LIMIT 1;
 
@@ -96,10 +93,50 @@ BEGIN
     INSERT INTO guy_aff VALUES (NEW.auth_id, NEW.institution_id, NEW.publication_date);
   END IF;
 
+  -- sprawdzam, czy konferencja na ktorej publikuje istnieje
+  SELECT id FROM conference INTO is_conf 
+  WHERE conference.id = NEW.conference_id; 
+
+  -- jesli konferencja jeszcze nie istniaja, to dodaje ja do bazy i sutawiam ilosc jej pkt na 0
+  IF is_conf IS NULL THEN 
+    INSERT INTO conference VALUES (NEW.conference_id, NULL);
+    INSERT INTO conference_points VALUES (NEW.conference_id, 0, NEW.publication_date);
+  END IF;
+
   RETURN NEW;
 END $X$ LANGUAGE plpgsql;
 
+-- funkcja, ktora ma sie wyzwolic po dodaniu do tabeli conference_points, zeby nie bylo ze 
+-- sa dwie rozne punktacje od jednej i tej samej daty
+CREATE OR REPLACE FUNCTION on_conf_points_insert () RETURNS TRIGGER 
+AS $X$
+DECLARE 
+  trututu varchar(40);
+BEGIN 
+  -- sprawdzam, czy tego dnia dla tej konferencji byla juz zmieniana punktacja
+  SELECT conference_id FROM conference_points INTO trututu 
+  WHERE 
+    conference_id = NEW.conference_id 
+    AND date_of_change = NEW.date_of_change;
 
+  -- jeszcze nie zmienialismy tego dnia punktow, wiec jest OK
+  IF trututu IS NULL THEN 
+    RETURN NEW;
+  ELSE 
+    -- jesli jednak zmienilismy punkty, to nadpisujemy stara zmiane
+    UPDATE conference_points 
+    SET points = NEW.points
+    WHERE  
+      conference_id = NEW.conference_id 
+      AND date_of_change = NEW.date_of_change;
+    -- i nic nie instertujemy
+    RETURN NULL;
+  END IF;
+END $X$ LANGUAGE plpgsql;
+
+
+-- drukuje liste autorow i sume (calosciowa) punktow konferencji w jakich zdarzylo
+-- mu sie publikowac w przedziale czasowym
 CREATE OR REPLACE FUNCTION list_author_points (
   start_date date, 
   end_date date
@@ -114,16 +151,15 @@ BEGIN
   SELECT paper.auth_id, SUM(points) 
   FROM paper JOIN conference_points ON paper.conference_id = conference_points.conference_id
   WHERE 
-    paper.publication_date > start_date 
-    AND paper.publication_date < end_date
-    AND paper.publication_date > conference_points.date_of_change 
+    paper.publication_date >= conference_points.date_of_change 
     -- ta zmiana jest najmłodsza spośród zmian przed publikacją papera
+    -- powinnam to zrobic w osobnej funkcji, ale kopiuj-wklej nie zawodzi
     AND conference_points.date_of_change IN ( 
       SELECT c1.date_of_change FROM 
       conference_points c1
       WHERE 
         c1.conference_id = paper.conference_id
-        AND c1.date_of_change < paper.publication_date 
+        AND c1.date_of_change <= paper.publication_date 
       ORDER BY 1 DESC
       LIMIT 1
     )
@@ -132,6 +168,9 @@ BEGIN
 END; 
 $X$;
 
+-- funkcja wypisujaca liste instytucji i paperow napisanych przez jej autorow
+-- z iloscia autorow pracy oraz iloscia autorow z tej instytucji
+-- potem w pythonie to sie obrabia
 CREATE OR REPLACE FUNCTION list_inst_points (
   start_date date, 
   end_date date
@@ -151,16 +190,17 @@ BEGIN
     SELECT paper.title, cp.points
     FROM paper JOIN conference_points cp ON paper.conference_id = cp.conference_id
     WHERE 
-      paper.publication_date > start_date 
-      AND paper.publication_date < end_date
-      AND paper.publication_date > cp.date_of_change 
+      paper.publication_date >= cp.date_of_change 
+      AND paper.publication_date >= start_date 
+      AND paper.publication_date <= end_date
       -- ta zmiana jest najmłodsza spośród zmian przed publikacją papera
+      -- znowu az prosi sie o jakas funkcje, ale no coz
       AND cp.date_of_change IN ( 
         SELECT c1.date_of_change FROM 
         conference_points c1
         WHERE 
           c1.conference_id = paper.conference_id
-          AND c1.date_of_change < paper.publication_date 
+          AND c1.date_of_change <= paper.publication_date 
         ORDER BY 1 DESC
         LIMIT 1
       )
@@ -180,9 +220,10 @@ BEGIN
   )
 
   SELECT DISTINCT paper_points.title, paper_points.points, inst_nr.institution_id, auth_nr.cnt, inst_nr.cnt
-  FROM auth_nr 
-    JOIN inst_nr ON auth_nr.title = inst_nr.title
-    JOIN paper_points ON auth_nr.title = paper_points.title;
+  FROM inst_nr
+    LEFT JOIN auth_nr ON auth_nr.title = inst_nr.title
+    LEFT JOIN paper_points ON auth_nr.title = paper_points.title
+  ;
 END; 
 $X$;
 
@@ -191,101 +232,19 @@ $X$;
 -- =============================================================== -- 
 
 
-CREATE TRIGGER paper_inserted BEFORE INSERT ON paper FOR EACH ROW EXECUTE PROCEDURE on_paper_insert();
-
-INSERT INTO conference VALUES ( 
-  'madra konferencja', 
-  'madra nazwa konferencji', 
-  69
-);
-
-INSERT INTO conference_points VALUES ( 
-  'madra konferencja', 
-  30,
-  DATE '2010-01-01'
-);
-
-INSERT INTO conference_points VALUES ( 
-  'madra konferencja', 
-  20,
-  DATE '2020-01-01'
-);
-
-
-INSERT INTO conference_points VALUES ( 
-  'madra konferencja', 
-  69,
-  DATE '2023-12-13'
-);
-
-INSERT INTO paper VALUES ( 
-  'weles',
-  'kotomania', 
-  'madra konferencja', 
-  DATE '2022-10-02', 
-  'Welesik jest czarnym psem, esej na 100 stron'
-);
-
-INSERT INTO paper VALUES ( 
-  'welesik',
-  'kotomania', 
-  'madra konferencja', 
-  DATE '2022-10-02', 
-  'Welesik jest czarnym psem, esej na 100 stron'
-);
-
-INSERT INTO paper VALUES ( 
-  'kycia',
-  'grubaskowo', 
-  'madra konferencja', 
-  DATE '2022-10-02', 
-  'Welesik jest czarnym psem, esej na 100 stron'
-);
-
-INSERT INTO paper VALUES ( 
-  'kycia',
-  'grubaskowo', 
-  'madra konferencja', 
-  DATE '2024-01-01', 
-  'Welesik jest czarnym psem'
-);
-
-INSERT INTO paper VALUES ( 
-  'weles',
-  'kotomania', 
-  'madra konferencja', 
-  DATE '2021-10-02', 
-  'Welesik'
-);
-
-INSERT INTO paper VALUES ( 
-  'welesik',
-  'kotomania', 
-  'madra konferencja', 
-  DATE '2021-10-02', 
-  'Welesik'
-);
-
-INSERT INTO paper VALUES ( 
-  'kycia',
-  'grubaskowo', 
-  'madra konferencja', 
-  DATE '2021-10-02', 
-  'Welesik'
-);
-
-INSERT INTO user_logins VALUES ('d8512346fbc5bb7a325ca4','weles', 'welesik');
-
-    
-SELECT * FROM paper;
-SELECT * FROM smart_guys;
-SELECT * FROM guy_aff;
-SELECT * FROM institutions;
-SELECT * FROM conference;
-SELECT * FROM conference_points;
-
-SELECT * FROM list_author_points(DATE '2019-03-03', DATE '2023-01-01');
-
-SELECT * FROM list_inst_points(DATE '2021-12-12', DATE '2025-01-01');
-
-SELECT * FROM list_author_details('weles');
+CREATE TRIGGER paper_inserted BEFORE INSERT ON paper             FOR EACH ROW EXECUTE PROCEDURE on_paper_insert();
+CREATE TRIGGER points_insert BEFORE  INSERT ON conference_points FOR EACH ROW EXECUTE PROCEDURE on_conf_points_insert();
+               
+--INSERT INTO paper (
+--  auth_id, 
+--  institution_id, 
+--  conference_id, 
+--  publication_date, 
+--  title
+--  ) VALUES ( 
+--    'weles', 
+--    'welesikowo13', 
+--    'madra konferencja',
+--    DATE '2024-05-12', 
+--    'weles jest czarny'
+--)
