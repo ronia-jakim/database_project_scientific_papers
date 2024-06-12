@@ -1,9 +1,0 @@
-{ "open": { "host": "localhost", "baza": "database_project_scientists", "login": "weles", "password": "welesik" } }
-{ "newuser": { "secret": "d8512346fbc5bb7a325ca4", "newlogin": "weles", "newpassword": "welesik" } }
-{ "article": { "login": "weles", "password": "welesik", "date": "2024-05-12", "title": "weles jest czarny", "conference": "madra konferencja", "author list": [ {"author": "weles", "institution": "welesikowo13"}, {"author": "kycia", "institution": "grozna"} ] } }
-{ "author": { "start_date": "2019-01-01", "end_date": "2020-06-06" } }
-{ "institution": {"start_date": "2019-01-01", "end_date": "2020-01-01" } }
-{ "points": { "login": "weles", "password": "welesik", "date": "2024-05-12", "points_list": [ {"conference": "madra konferencja", "points": "70" } ] } } 
-{ "institution": {"start_date": "2019-01-01", "end_date": "2025-01-01" } }
-{ "points": { "login": "weles", "password": "welesik", "date": "2024-05-12", "points_list": [ {"conference": "madra konferencja", "points": "20" } ] } } 
-{ "institution": {"start_date": "2019-01-01", "end_date": "2025-01-01" } }
